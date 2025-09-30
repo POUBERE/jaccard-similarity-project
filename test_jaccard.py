@@ -107,3 +107,36 @@ class TestPreprocessing(unittest.TestCase):
         """Une phrase avec que des espaces doit donner un ensemble vide."""
         result = self.calculator.preprocess_sentence("   ")
         self.assertEqual(result, set())
+
+
+class TestCaseAndPunctuation(unittest.TestCase):
+    """Tests des options de casse et ponctuation."""
+
+    def test_case_sensitivity_off(self):
+        """Par défaut, la casse ne devrait pas être prise en compte."""
+        calculator = JaccardSimilarity(case_sensitive=False)
+        similarity = calculator.calculate_similarity(
+            "Hello World", "hello world")
+        self.assertEqual(similarity, 1.0)
+
+    def test_case_sensitivity_on(self):
+        """Quand case_sensitive=True, la casse doit être respectée."""
+        calculator = JaccardSimilarity(case_sensitive=True)
+        sentence1 = "Hello World"
+        sentence2 = "hello world"
+
+        similarity = calculator.calculate_similarity(sentence1, sentence2)
+        self.assertLess(similarity, 1.0)
+
+    def test_punctuation_removal(self):
+        """La ponctuation est supprimée par défaut."""
+        calculator = JaccardSimilarity(remove_punctuation=True)
+        similarity = calculator.calculate_similarity(
+            "Hello, world!", "Hello world")
+        self.assertEqual(similarity, 1.0)
+
+    def test_punctuation_kept(self):
+        """Avec remove_punctuation=False, la ponctuation est gardée."""
+        calculator = JaccardSimilarity(remove_punctuation=False)
+        similarity = calculator.calculate_similarity("Hello!", "Hello")
+        self.assertLess(similarity, 1.0)
