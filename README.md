@@ -60,3 +60,17 @@ python jaccard_similarity.py --interactive
 ```
 
 Permet de saisir vos propres phrases et de calculer leur similarité en temps réel.
+
+**Exemple d'utilisation :**
+
+```
+Phrase 1: Le chat mange des croquettes
+Phrase 2: Le chien mange des croquettes
+
+Résultat:
+  Similarité de Jaccard: 0.6667
+  Mots phrase 1: ['chat', 'croquettes', 'des', 'le', 'mange']
+  Mots phrase 2: ['chien', 'croquettes', 'des', 'le', 'mange']
+  Mots communs: ['croquettes', 'des', 'le', 'mange'] (4)
+  Mots total: ['chat', 'chien', 'croquettes', 'des', 'le', 'mange'] (6)
+```
