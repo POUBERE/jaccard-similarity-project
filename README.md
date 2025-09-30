@@ -245,3 +245,273 @@ Le programme applique automatiquement les transformations suivantes :
 | "Bonjour monde"                | "Hello world"                         | 0.0000     | Aucune similarité     |
 | "Machine learning supervisé"   | "Apprentissage automatique supervisé" | 0.2500     | Faible similarité     |
 | "Le chat mange des croquettes" | "Le chien mange des croquettes"       | 0.6667     | Assez similaire       |
+
+## 🧮 Complexité algorithmique
+
+- **Temps** : O(n + m) où n et m sont le nombre de mots dans chaque phrase
+     - Prétraitement : O(n) et O(m)
+     - Opérations sur ensembles (intersection, union) : O(min(n,m))
+- **Espace** : O(n + m) pour stocker les ensembles de mots
+
+L'algorithme reste efficace même avec de grandes phrases ou de nombreuses comparaisons.
+
+## 🔍 Tests et validation
+
+### Tests unitaires inclus
+
+Le fichier `test_jaccard.py` contient plus de 30 tests couvrant :
+
+- ✅ Phrases identiques (similarité = 1.0)
+- ✅ Phrases sans mots communs (similarité = 0.0)
+- ✅ Cas partiels avec calculs vérifiés
+- ✅ Gestion de la ponctuation
+- ✅ Sensibilité à la casse
+- ✅ Chaînes vides
+- ✅ Propriétés mathématiques (réflexivité, symétrie)
+- ✅ Cas limites (espaces, caractères spéciaux)
+- ✅ Tests de performance
+- ✅ Exemples du monde réel
+
+### Lancer les tests
+
+```bash
+python test_jaccard.py
+```
+
+Les tests affichent également un résumé des performances avec différentes tailles de données.
+
+## 📈 Applications possibles
+
+Cette implémentation peut être utilisée pour :
+
+- 🔍 **Détection de plagiat** : Identifier des textes copiés ou paraphrasés
+- 📚 **Classification de documents** : Grouper des textes similaires (clustering)
+- 🤖 **Systèmes de recommandation** : Recommander du contenu similaire
+- 🔗 **Déduplication** : Éliminer les doublons dans une base de données
+- 📊 **Analyse de sentiment** : Comparer des avis ou commentaires
+- 🔎 **Moteur de recherche** : Trouver des documents pertinents par rapport à une requête
+- 📝 **Analyse de texte** : Étudier la similarité entre corpus de textes
+
+## ⚠️ Limitations
+
+- **Ordre des mots** : Ne tient pas compte de l'ordre (approche "sac de mots")
+- **Synonymes** : Ne reconnaît pas les synonymes (chat ≠ félin, voiture ≠ automobile)
+- **Contexte sémantique** : N'analyse pas le sens profond des phrases
+- **Négation** : "J'aime" et "Je n'aime pas" ont une haute similarité
+- **Longueur** : Sensible aux différences de longueur entre phrases
+
+## 🚀 Améliorations possibles
+
+### Améliorations techniques
+
+- [ ] **Stemming/Lemmatisation** : Réduire les mots à leur racine
+- [ ] **N-grammes** : Utiliser des bigrammes ou trigrammes au lieu de mots uniques
+- [ ] **Pondération TF-IDF** : Donner plus d'importance aux mots rares
+- [ ] **Stop words** : Liste personnalisée de mots à ignorer
+- [ ] **Synonymes** : Intégration d'un dictionnaire de synonymes
+- [ ] **Distance de Levenshtein** : Tolérance aux fautes d'orthographe
+
+### Améliorations d'interface
+
+- [ ] **Interface graphique** : GUI avec Tkinter ou PyQt
+- [ ] **API REST** : Serveur Flask/FastAPI pour utilisation web
+- [ ] **Visualisations** : Graphiques de similarité avec matplotlib
+- [ ] **Export de résultats** : CSV, JSON, Excel
+- [ ] **Support multilingue** : Optimisation pour différentes langues
+- [ ] **Batch processing** : Traitement de fichiers volumineux
+
+## 📁 Structure du projet
+
+```
+jaccard-similarity-project/
+├── jaccard_similarity.py    # Programme principal
+├── test_jaccard.py         # Tests unitaires complets
+├── README.md               # Documentation (ce fichier)
+├── .gitignore              # Fichiers à ignorer par Git
+├── LICENSE                 # Licence du projet
+└── examples/               # Exemples supplémentaires
+    └── demo.py            # Script de démonstration avancée
+```
+
+## 📚 Documentation du code
+
+Le code est entièrement documenté avec :
+
+- **Docstrings** : Chaque fonction et classe est documentée
+- **Type hints** : Types explicites pour tous les paramètres et retours
+- **Commentaires** : Explications pour les parties complexes
+- **Exemples** : Cas d'usage dans les docstrings
+
+### Exemple de documentation
+
+```python
+def calculate_similarity(self, sentence1: str, sentence2: str) -> float:
+    """
+    Calcule la similarité de Jaccard entre deux phrases.
+
+    Args:
+        sentence1: Première phrase
+        sentence2: Deuxième phrase
+
+    Returns:
+        Similarité de Jaccard (entre 0 et 1)
+
+    Exemple:
+        >>> calculator = JaccardSimilarity()
+        >>> calculator.calculate_similarity("Le chat mange", "Le chien mange")
+        0.5
+    """
+```
+
+## 🐛 Résolution de problèmes
+
+### Problème : ImportError
+
+**Erreur** : `ModuleNotFoundError: No module named 'jaccard_similarity'`
+
+**Solution** : Assurez-vous d'être dans le bon répertoire et que le fichier `jaccard_similarity.py` existe.
+
+```bash
+# Vérification du répertoire
+ls -la
+# Doit afficher jaccard_similarity.py
+
+# Exécution depuis le bon répertoire
+python jaccard_similarity.py
+```
+
+### Problème : Encodage de caractères
+
+**Erreur** : Problèmes avec les accents français
+
+**Solution** : Le fichier utilise l'encodage UTF-8. Vérifiez la configuration de votre terminal :
+
+```bash
+# Sur Linux/Mac
+export LANG=fr_FR.UTF-8
+
+# Sur Windows (PowerShell)
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+```
+
+### Problème : Performances lentes
+
+**Symptôme** : Calculs trop longs avec beaucoup de phrases
+
+**Solution** : Pour de grandes quantités de données, optimisez :
+
+```python
+# Évitez les comparaisons redondantes
+# Utilisez get_similarity_matrix() au lieu de multiples calculate_similarity()
+
+# Pour n phrases, utilisez :
+matrix = calculator.get_similarity_matrix(sentences)
+# Au lieu de n² appels individuels
+```
+
+## 🤝 Contribution
+
+Nous accueillons les contributions ! Voici comment participer :
+
+1. **Fork** le projet
+2. Créez une **branche** pour votre fonctionnalité
+      ```bash
+      git checkout -b feature/NouvelleFonctionnalite
+      ```
+3. **Committez** vos changements
+      ```bash
+      git commit -m 'Ajout de NouvelleFonctionnalite'
+      ```
+4. **Push** vers la branche
+      ```bash
+      git push origin feature/NouvelleFonctionnalite
+      ```
+5. Ouvrez une **Pull Request**
+
+### Normes de contribution
+
+- Suivez le style de code PEP 8
+- Ajoutez des tests pour les nouvelles fonctionnalités
+- Mettez à jour la documentation
+- Assurez-vous que tous les tests passent
+
+## 📄 Licence
+
+Ce projet est développé dans le cadre d'un TP de Machine Learning non Supervisé.
+
+## 🔗 Liens utiles
+
+- **Repository Git** : [https://github.com/[votre-username]/jaccard-similarity-project](https://github.com/POUBERE/jaccard-similarity-project)
+- **Issues** : [https://github.com/[votre-username]/jaccard-similarity-project/issues](https://github.com/POUBERE/jaccard-similarity-project/issues)
+- **Documentation Python** : [https://docs.python.org/3/](https://docs.python.org/3/)
+
+## 📞 Support
+
+Pour toute question ou problème :
+
+1. Consultez d'abord cette documentation
+2. Vérifiez les [Issues existantes](https://github.com/POUBERE/jaccard-similarity-project/issues)
+3. Créez une nouvelle Issue si nécessaire
+4. Contactez l'équipe : [abdourazakoupoubere@gmail.com]
+
+## 🎓 Contexte académique
+
+Ce projet a été développé dans le cadre du cours de **Machine Learning non Supervisé**. Il illustre :
+
+- L'implémentation d'une métrique de similarité
+- Les bonnes pratiques de développement Python
+- La documentation et les tests unitaires
+- L'utilisation de Git pour la gestion de version
+- Le travail collaboratif en équipe
+
+### Concepts abordés
+
+- **Ensembles et opérations** : Intersection, union
+- **Mesures de similarité** : Coefficient de Jaccard
+- **Prétraitement de texte** : Tokenisation, normalisation
+- **Complexité algorithmique** : Analyse de performance
+- **Tests unitaires** : Validation et non-régression
+
+## 📖 Références
+
+### Articles académiques
+
+- Jaccard, P. (1912). "The distribution of the flora in the alpine zone"
+- Manning, C. D., & Schütze, H. (1999). "Foundations of statistical natural language processing"
+
+### Ressources en ligne
+
+- [Introduction à la similarité de Jaccard](https://en.wikipedia.org/wiki/Jaccard_index)
+- [Documentation Python officielle](https://docs.python.org/3/)
+- [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/)
+
+## ✅ Checklist du projet
+
+- [x] Implémentation de la similarité de Jaccard
+- [x] Support des phrases en français
+- [x] Gestion de la ponctuation et de la casse
+- [x] Tests unitaires complets (30+ tests)
+- [x] Documentation détaillée
+- [x] Mode interactif
+- [x] Options de configuration
+- [x] Comparaison multiple de phrases
+- [x] Matrice de similarité
+- [x] Tests de performance
+- [x] Exemples d'utilisation
+- [x] README complet
+
+## 🎯 Objectifs du TP
+
+Ce projet répond aux exigences suivantes du TP :
+
+1. ✅ **Programme fonctionnel** : Implémentation complète de la similarité de Jaccard
+2. ✅ **Langage libre** : Développé en Python 3
+3. ✅ **Compte Git** : Repository configuré pour le travail en équipe
+4. ✅ **Documentation du code** : Docstrings, commentaires, type hints
+5. ✅ **Mode d'exécution** : Instructions claires et détaillées
+6. ✅ **Exemples de tests** : Tests automatiques et interactifs
+
+---
+
+**Développé avec ❤️ par OUEDRAOGO Lassina, OUEDRAOGO Rasmane et POUBERE Abdourazakou**  
+_Cours de Machine Learning non Supervisé - Septembre 2025_
