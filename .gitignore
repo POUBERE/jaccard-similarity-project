@@ -1,0 +1,159 @@
+# Fichiers compilés Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Extensions C
+*.so
+
+# Fichiers de distribution et packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Fichiers PyInstaller
+*.manifest
+*.spec
+
+# Logs d'installation
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Rapports de tests et couverture
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Fichiers de traduction
+*.mo
+*.pot
+
+# Fichiers Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Fichiers Flask
+instance/
+.webassets-cache
+
+# Fichiers Scrapy
+.scrapy
+
+# Documentation Sphinx
+docs/_build/
+
+# Fichiers PyBuilder
+target/
+
+# Checkpoints Jupyter
+.ipynb_checkpoints
+
+# Configuration IPython
+profile_default/
+ipython_config.py
+
+# Version Python (pyenv)
+.python-version
+
+# Lock file pipenv
+Pipfile.lock
+
+# Répertoire PEP 582
+__pypackages__/
+
+# Fichiers Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Fichiers parsés SageMath
+*.sage.py
+
+# Environnements virtuels
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Configuration Spyder
+.spyderproject
+.spyproject
+
+# Configuration Rope
+.ropeproject
+
+# Documentation mkdocs
+/site
+
+# Cache mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Vérificateur de types Pyre
+.pyre/
+
+# Fichiers VSCode
+.vscode/
+*.code-workspace
+
+# Fichiers PyCharm
+.idea/
+*.iml
+*.iws
+
+# Fichiers Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Fichiers système Mac
+.DS_Store
+
+# Fichiers système Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*~
+
+# Dossiers et fichiers spécifiques au projet
+results/
+output/
+data/
+*.csv
+*.xlsx
+*.json
+*.db
+logs/
