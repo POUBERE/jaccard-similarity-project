@@ -296,3 +296,32 @@ def interactive_mode(calculator: JaccardSimilarity):
         print(f"Total mots uniques: {len(set1.union(set2))} mots")
         print("-" * 60)
 
+def main():
+    """Fonction principale avec interface en ligne de commande."""
+    parser = argparse.ArgumentParser(
+        description='Calcul de similarité de Jaccard entre phrases',
+        epilog='Exemple: python jaccard_similarity.py --interactive'
+    )
+    parser.add_argument('--case-sensitive', action='store_true',
+                        help='Respecte la casse des mots')
+    parser.add_argument('--keep-punctuation', action='store_true',
+                        help='Garde la ponctuation')
+    parser.add_argument('--interactive', action='store_true',
+                        help='Mode interactif pour saisir des phrases')
+
+    args = parser.parse_args()
+
+    # Configuration du calculateur selon les arguments
+    calculator = JaccardSimilarity(
+        case_sensitive=args.case_sensitive,
+        remove_punctuation=not args.keep_punctuation
+    )
+
+    if args.interactive:
+        interactive_mode(calculator)
+    else:
+        run_example_tests(calculator)
+
+
+if __name__ == "__main__":
+    main()
