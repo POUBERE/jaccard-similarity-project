@@ -190,3 +190,77 @@ class JaccardSimilarity:
 
         return max(comparisons, key=lambda x: x[2])
 
+
+def run_example_tests(calculator: JaccardSimilarity):
+    """
+    Exécute des tests d'exemple pour démontrer le fonctionnement.
+
+    Args:
+        calculator (JaccardSimilarity): Instance du calculateur
+    """
+    print("=== Programme de Calcul de Similarité de Jaccard ===\n")
+
+    # Définition des cas de test
+    examples = [
+        ("Le chat mange des croquettes", "Le chien mange des os"),
+        ("Python est un langage de programmation",
+         "Java est un langage de programmation"),
+        ("Machine learning supervisé", "Apprentissage automatique supervisé"),
+        ("Bonjour tout le monde", "Salut tout le monde"),
+        ("Aucun mot en commun", "Différentes phrases complètement")
+    ]
+
+    print("1. Tests de base :")
+    print("-" * 60)
+    for i, (s1, s2) in enumerate(examples, 1):
+        similarity = calculator.calculate_similarity(s1, s2)
+        print(f"Test {i}:")
+        print(f"  Phrase 1: '{s1}'")
+        print(f"  Phrase 2: '{s2}'")
+        print(f"  Similarité: {similarity:.4f}")
+        print()
+
+    print("2. Analyse détaillée d'un exemple :")
+    print("-" * 60)
+    detailed = calculator.calculate_similarity_detailed(
+        "Le chat mange", "Le chien mange")
+    print(f"Phrase 1: '{detailed['sentence1']}'")
+    print(f"Phrase 2: '{detailed['sentence2']}'")
+    print(f"Mots phrase 1: {sorted(detailed['words_set1'])}")
+    print(f"Mots phrase 2: {sorted(detailed['words_set2'])}")
+    print(f"Intersection: {sorted(detailed['intersection'])}")
+    print(f"Union: {sorted(detailed['union'])}")
+    print(f"Taille intersection: {detailed['intersection_size']}")
+    print(f"Taille union: {detailed['union_size']}")
+    print(f"Similarité Jaccard: {detailed['jaccard_similarity']:.4f}")
+    print()
+
+    print("3. Matrice de similarité :")
+    print("-" * 60)
+    test_sentences = [
+        "Le chat mange",
+        "Le chien mange",
+        "Les animaux mangent",
+        "Python est génial"
+    ]
+
+    matrix = calculator.get_similarity_matrix(test_sentences)
+
+    print("Phrases testées :")
+    for i, sentence in enumerate(test_sentences):
+        print(f"  {i}: '{sentence}'")
+    print()
+
+    print("Matrice de similarité :")
+    print("     ", end="")
+    for i in range(len(test_sentences)):
+        print(f"{i:8}", end="")
+    print()
+
+    for i, row in enumerate(matrix):
+        print(f"{i}: ", end="")
+        for similarity in row:
+            print(f"{similarity:8.4f}", end="")
+        print()
+
+
