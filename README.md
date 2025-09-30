@@ -139,3 +139,109 @@ sentence2 = "Chien blanc"
 similarity = calculator.calculate_similarity(sentence1, sentence2)
 # Résultat: 0.0 (aucune similarité)
 ```
+
+### Exemple 4 : Analyse détaillée
+
+```python
+result = calculator.calculate_similarity_detailed("Le chat mange", "Le chien mange")
+print(result)
+# {
+#   'sentence1': 'Le chat mange',
+#   'sentence2': 'Le chien mange',
+#   'words_set1': {'le', 'chat', 'mange'},
+#   'words_set2': {'le', 'chien', 'mange'},
+#   'intersection': {'le', 'mange'},
+#   'union': {'le', 'chat', 'chien', 'mange'},
+#   'intersection_size': 2,
+#   'union_size': 4,
+#   'jaccard_similarity': 0.5
+# }
+```
+
+### Exemple 5 : Comparaison multiple
+
+```python
+sentences = [
+    "Le chat mange",
+    "Le chien mange",
+    "Les animaux mangent",
+    "Python est génial"
+]
+
+# Comparaison de toutes les paires
+results = calculator.compare_multiple_sentences(sentences)
+for idx1, idx2, sim in results:
+    print(f"Phrases {idx1+1} et {idx2+1}: {sim:.4f}")
+
+# Recherche de la paire la plus similaire
+idx1, idx2, max_sim = calculator.get_most_similar_pair(sentences)
+print(f"Paire la plus similaire: phrases {idx1+1} et {idx2+1} ({max_sim:.4f})")
+```
+
+### Exemple 6 : Matrice de similarité
+
+```python
+matrix = calculator.get_similarity_matrix(sentences)
+# Retourne une matrice n×n avec les similarités entre toutes les phrases
+```
+
+## 🔧 Fonctionnalités
+
+### Classe `JaccardSimilarity`
+
+#### Paramètres de configuration
+
+- **`case_sensitive`** (bool, défaut=False) : Si True, respecte la casse des mots
+- **`remove_punctuation`** (bool, défaut=True) : Si True, supprime la ponctuation
+
+#### Méthodes principales
+
+1. **`calculate_similarity(sentence1, sentence2)`**
+
+      - Calcule la similarité de Jaccard entre deux phrases
+      - Retourne une valeur entre 0 (aucune similarité) et 1 (identiques)
+
+2. **`calculate_similarity_detailed(sentence1, sentence2)`**
+
+      - Version détaillée avec toutes les informations du calcul
+      - Retourne un dictionnaire avec les ensembles, intersection, union, etc.
+
+3. **`compare_multiple_sentences(sentences)`**
+
+      - Compare toutes les paires dans une liste de phrases
+      - Retourne une liste de tuples (index1, index2, similarité)
+
+4. **`get_similarity_matrix(sentences)`**
+
+      - Génère une matrice de similarité n×n
+      - Utile pour visualiser toutes les relations
+
+5. **`get_most_similar_pair(sentences)`**
+
+      - Trouve la paire la plus similaire dans une liste
+      - Retourne (index1, index2, similarité_max)
+
+6. **`preprocess_sentence(sentence)`**
+      - Prétraite une phrase (conversion en ensemble de mots)
+      - Applique les transformations selon la configuration
+
+### Prétraitement automatique
+
+Le programme applique automatiquement les transformations suivantes :
+
+- ✅ Conversion en minuscules (si case_sensitive=False)
+- ✅ Suppression de la ponctuation (si remove_punctuation=True)
+- ✅ Gestion des accents français et caractères spéciaux
+- ✅ Division en mots individuels
+- ✅ Suppression des espaces multiples
+- ✅ Élimination des mots vides (chaînes vides)
+
+## 📊 Résultats d'exemple
+
+| Phrase 1                       | Phrase 2                              | Similarité | Interprétation        |
+| ------------------------------ | ------------------------------------- | ---------- | --------------------- |
+| "Le chat mange"                | "Le chien mange"                      | 0.5000     | Moyennement similaire |
+| "Python est un langage"        | "Java est un langage"                 | 0.7500     | Très similaire        |
+| "Bonjour monde"                | "Hello world"                         | 0.0000     | Aucune similarité     |
+| "Machine learning supervisé"   | "Apprentissage automatique supervisé" | 0.2500     | Faible similarité     |
+| "Le chat mange des croquettes" | "Le chien mange des croquettes"       | 0.6667     | Assez similaire       |
