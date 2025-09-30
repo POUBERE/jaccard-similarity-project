@@ -263,4 +263,36 @@ def run_example_tests(calculator: JaccardSimilarity):
             print(f"{similarity:8.4f}", end="")
         print()
 
+def interactive_mode(calculator: JaccardSimilarity):
+    """
+    Mode interactif pour saisir des phrases manuellement.
+
+    Args:
+        calculator (JaccardSimilarity): Instance du calculateur
+    """
+    print("=== Mode Interactif - Calculateur de Similarité de Jaccard ===")
+    print("Entrez 'quit' pour quitter\n")
+
+    while True:
+        sentence1 = input("Phrase 1: ").strip()
+        if sentence1.lower() == 'quit':
+            break
+
+        sentence2 = input("Phrase 2: ").strip()
+        if sentence2.lower() == 'quit':
+            break
+
+        similarity = calculator.calculate_similarity(sentence1, sentence2)
+
+        print(f"\nSimilarité de Jaccard: {similarity:.4f}")
+
+        # Affichage des informations complémentaires
+        set1 = calculator.preprocess_sentence(sentence1)
+        set2 = calculator.preprocess_sentence(sentence2)
+        intersection = set1.intersection(set2)
+
+        print(
+            f"Mots communs: {sorted(intersection)} ({len(intersection)} mots)")
+        print(f"Total mots uniques: {len(set1.union(set2))} mots")
+        print("-" * 60)
 
