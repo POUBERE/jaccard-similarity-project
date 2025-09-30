@@ -65,3 +65,45 @@ class TestJaccardSimilarityBasic(unittest.TestCase):
 
         similarity_diff = self.calculator.calculate_similarity("chat", "chien")
         self.assertEqual(similarity_diff, 0.0)
+
+
+class TestPreprocessing(unittest.TestCase):
+    """Tests du prétraitement des phrases."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_preprocess_basic(self):
+        """Test simple du prétraitement."""
+        result = self.calculator.preprocess_sentence("Hello World")
+        expected = {'hello', 'world'}
+        self.assertEqual(result, expected)
+
+    def test_preprocess_punctuation(self):
+        """La ponctuation doit être supprimée."""
+        result = self.calculator.preprocess_sentence("Hello, World!")
+        expected = {'hello', 'world'}
+        self.assertEqual(result, expected)
+
+    def test_preprocess_empty(self):
+        """Une phrase vide doit retourner un ensemble vide."""
+        result = self.calculator.preprocess_sentence("")
+        expected = set()
+        self.assertEqual(result, expected)
+
+    def test_preprocess_accents(self):
+        """Les accents français doivent être préservés."""
+        result = self.calculator.preprocess_sentence("Café français")
+        expected = {'café', 'français'}
+        self.assertEqual(result, expected)
+
+    def test_preprocess_multiple_spaces(self):
+        """Les espaces multiples doivent être gérés correctement."""
+        result = self.calculator.preprocess_sentence("Le  chat   mange")
+        expected = {'le', 'chat', 'mange'}
+        self.assertEqual(result, expected)
+
+    def test_preprocess_spaces_only(self):
+        """Une phrase avec que des espaces doit donner un ensemble vide."""
+        result = self.calculator.preprocess_sentence("   ")
+        self.assertEqual(result, set())
