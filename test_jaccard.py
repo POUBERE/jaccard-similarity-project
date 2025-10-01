@@ -140,3 +140,39 @@ class TestCaseAndPunctuation(unittest.TestCase):
         calculator = JaccardSimilarity(remove_punctuation=False)
         similarity = calculator.calculate_similarity("Hello!", "Hello")
         self.assertLess(similarity, 1.0)
+
+
+class TestDetailedCalculation(unittest.TestCase):
+    """Tests pour le calcul détaillé."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_detailed_result_structure(self):
+        """Vérification que le résultat détaillé contient toutes les informations."""
+        result = self.calculator.calculate_similarity_detailed(
+            "hello world", "hello python"
+        )
+
+        # On vérifie que toutes les clés sont présentes
+        required_keys = [
+            'sentence1', 'sentence2', 'words_set1', 'words_set2',
+            'intersection', 'union', 'intersection_size', 'union_size',
+            'jaccard_similarity'
+        ]
+        for key in required_keys:
+            self.assertIn(key, result)
+
+    def test_detailed_calculation_values(self):
+        """Test des valeurs retournées par le calcul détaillé."""
+        result = self.calculator.calculate_similarity_detailed(
+            "hello world", "hello python"
+        )
+
+        self.assertEqual(result['words_set1'], {'hello', 'world'})
+        self.assertEqual(result['words_set2'], {'hello', 'python'})
+        self.assertEqual(result['intersection'], {'hello'})
+        self.assertEqual(result['union'], {'hello', 'world', 'python'})
+        self.assertEqual(result['intersection_size'], 1)
+        self.assertEqual(result['union_size'], 3)
+        self.assertAlmostEqual(result['jaccard_similarity'], 1/3, places=3)
