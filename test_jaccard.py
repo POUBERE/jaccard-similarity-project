@@ -176,3 +176,66 @@ class TestDetailedCalculation(unittest.TestCase):
         self.assertEqual(result['intersection_size'], 1)
         self.assertEqual(result['union_size'], 3)
         self.assertAlmostEqual(result['jaccard_similarity'], 1/3, places=3)
+
+
+class TestMultipleComparisons(unittest.TestCase):
+    """Tests pour comparer plusieurs phrases à la fois."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_compare_multiple_sentences(self):
+        """Test de la comparaison de plusieurs phrases."""
+        sentences = [
+            "Le chat mange",
+            "Le chien mange",
+            "Python programmation"
+        ]
+
+        results = self.calculator.compare_multiple_sentences(sentences)
+
+        # Avec 3 phrases, on devrait avoir 3 comparaisons: (0,1), (0,2), (1,2)
+        self.assertEqual(len(results), 3)
+
+        # Chaque résultat doit être bien formaté
+        for idx1, idx2, similarity in results:
+            self.assertIsInstance(idx1, int)
+            self.assertIsInstance(idx2, int)
+            self.assertIsInstance(similarity, float)
+            self.assertTrue(0 <= similarity <= 1)
+            self.assertLess(idx1, idx2)
+
+    def test_get_most_similar_pair(self):
+        """Recherche de la paire la plus similaire dans une liste."""
+        sentences = [
+            "Le chat mange des croquettes",
+            "Python est génial",
+            "Le chien mange des croquettes",
+            "Java est bien"
+        ]
+
+        idx1, idx2, max_similarity = self.calculator.get_most_similar_pair(
+            sentences)
+
+        # Les phrases 0 et 2 devraient être les plus similaires
+        self.assertTrue((idx1 == 0 and idx2 == 2) or (idx1 == 2 and idx2 == 0))
+        self.assertGreater(max_similarity, 0.5)
+
+    def test_similarity_matrix(self):
+        """Test de la génération d'une matrice de similarité."""
+        sentences = ["chat", "chien", "oiseau"]
+        matrix = self.calculator.get_similarity_matrix(sentences)
+
+        # La matrice doit être 3x3
+        self.assertEqual(len(matrix), 3)
+        for row in matrix:
+            self.assertEqual(len(row), 3)
+
+        # La diagonale doit contenir des 1.0
+        for i in range(3):
+            self.assertEqual(matrix[i][i], 1.0)
+
+        # La matrice doit être symétrique
+        for i in range(3):
+            for j in range(3):
+                self.assertAlmostEqual(matrix[i][j], matrix[j][i], places=10)
