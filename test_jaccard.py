@@ -321,3 +321,76 @@ class TestMathematicalProperties(unittest.TestCase):
             sim2 = self.calculator.calculate_similarity(s2, s1)
             self.assertAlmostEqual(sim1, sim2, places=10,
                                    msg=f"Symétrie échouée pour '{s1}' et '{s2}'")
+
+
+class TestEdgeCases(unittest.TestCase):
+    """Tests de cas particuliers et limites."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_only_punctuation(self):
+        """Phrases composées uniquement de ponctuation."""
+        similarity = self.calculator.calculate_similarity("!!!", "???")
+        self.assertEqual(similarity, 0.0)
+
+    def test_repeated_words(self):
+        """Les mots répétés ne comptent qu'une fois dans les ensembles."""
+        s1 = "chat chat chat"
+        s2 = "chat"
+        similarity = self.calculator.calculate_similarity(s1, s2)
+        self.assertEqual(similarity, 1.0)
+
+    def test_very_long_sentences(self):
+        """Test avec des phrases très longues pour vérifier la robustesse."""
+        long_sentence1 = " ".join(["mot"] * 100)
+        long_sentence2 = " ".join(["mot"] * 50)
+        similarity = self.calculator.calculate_similarity(
+            long_sentence1, long_sentence2)
+        self.assertEqual(similarity, 1.0)
+
+    def test_special_characters(self):
+        """Test avec des caractères spéciaux."""
+        s1 = "hello@world.com"
+        s2 = "hello world com"
+        similarity = self.calculator.calculate_similarity(s1, s2)
+        self.assertGreater(similarity, 0.0)
+        self.assertAlmostEqual(similarity, 1.0, places=2)
+
+
+class TestPerformance(unittest.TestCase):
+    """Tests de performance du calculateur."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_large_sentences_performance(self):
+        """Mesure du temps de calcul avec de grandes phrases."""
+        words = [f"mot{i}" for i in range(1000)]
+        sentence1 = " ".join(words[:800])
+        sentence2 = " ".join(words[200:])
+
+        start_time = time.time()
+        similarity = self.calculator.calculate_similarity(sentence1, sentence2)
+        end_time = time.time()
+
+        # Ça devrait prendre moins d'une seconde
+        self.assertLess(end_time - start_time, 1.0)
+
+        # On vérifie aussi que le résultat est cohérent
+        self.assertTrue(0 <= similarity <= 1)
+
+    def test_many_comparisons_performance(self):
+        """Test de performance avec beaucoup de comparaisons."""
+        sentences = [f"phrase numéro {i} avec des mots" for i in range(50)]
+
+        start_time = time.time()
+        results = self.calculator.compare_multiple_sentences(sentences)
+        end_time = time.time()
+
+        # On doit avoir 50*49/2 = 1225 comparaisons
+        expected_comparisons = 50 * 49 // 2
+        self.assertEqual(len(results), expected_comparisons)
+
+        # Ça devrait prendre moins de 2 secondes
+        self.assertLess(end_time - start_time, 2.0)
