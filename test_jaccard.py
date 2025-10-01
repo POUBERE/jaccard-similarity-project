@@ -275,3 +275,49 @@ class TestRealWorldExamples(unittest.TestCase):
         # 7 mots au total
         expected = 3/7
         self.assertAlmostEqual(similarity, expected, places=3)
+
+
+class TestMathematicalProperties(unittest.TestCase):
+    """Vérification des propriétés mathématiques de Jaccard."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_range_property(self):
+        """La similarité doit toujours être entre 0 et 1."""
+        sentences = [
+            "chat mange",
+            "chien court",
+            "oiseau vole",
+            "poisson nage"
+        ]
+
+        for s1 in sentences:
+            for s2 in sentences:
+                similarity = self.calculator.calculate_similarity(s1, s2)
+                self.assertTrue(0 <= similarity <= 1,
+                                f"Similarité hors limites: {similarity}")
+
+    def test_reflexivity(self):
+        """Une phrase comparée à elle-même doit toujours donner 1."""
+        sentences = ["chat", "chien court", "oiseau vole rapidement"]
+
+        for sentence in sentences:
+            similarity = self.calculator.calculate_similarity(
+                sentence, sentence)
+            self.assertEqual(similarity, 1.0,
+                             f"Réflexivité échouée pour '{sentence}'")
+
+    def test_symmetry(self):
+        """Jaccard(A,B) doit être égal à Jaccard(B,A)."""
+        pairs = [
+            ("chat mange", "chien court"),
+            ("python code", "java programmation"),
+            ("bonjour monde", "hello world")
+        ]
+
+        for s1, s2 in pairs:
+            sim1 = self.calculator.calculate_similarity(s1, s2)
+            sim2 = self.calculator.calculate_similarity(s2, s1)
+            self.assertAlmostEqual(sim1, sim2, places=10,
+                                   msg=f"Symétrie échouée pour '{s1}' et '{s2}'")
