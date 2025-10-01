@@ -394,3 +394,30 @@ class TestPerformance(unittest.TestCase):
 
         # Ça devrait prendre moins de 2 secondes
         self.assertLess(end_time - start_time, 2.0)
+
+
+def run_performance_summary():
+    """Affichage d'un résumé des performances."""
+    print("\n" + "="*70)
+    print("RÉSUMÉ DES PERFORMANCES")
+    print("="*70)
+
+    calculator = JaccardSimilarity()
+
+    test_sizes = [10, 50, 100, 200]
+
+    for size in test_sizes:
+        sentences = [
+            f"phrase de test {i} avec quelques mots" for i in range(size)]
+
+        start_time = time.time()
+        results = calculator.compare_multiple_sentences(sentences)
+        end_time = time.time()
+
+        execution_time = end_time - start_time
+        comparisons = len(results)
+        comp_per_sec = comparisons / \
+            execution_time if execution_time > 0 else float('inf')
+
+        print(f"  {size:3d} phrases → {comparisons:5d} comparaisons en {execution_time:.3f}s "
+              f"({comp_per_sec:.0f} comp/s)")
