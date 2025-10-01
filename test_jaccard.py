@@ -239,3 +239,39 @@ class TestMultipleComparisons(unittest.TestCase):
         for i in range(3):
             for j in range(3):
                 self.assertAlmostEqual(matrix[i][j], matrix[j][i], places=10)
+
+
+class TestRealWorldExamples(unittest.TestCase):
+    """Tests avec des cas réalistes."""
+
+    def setUp(self):
+        self.calculator = JaccardSimilarity()
+
+    def test_similar_news_articles(self):
+        """Test avec des titres d'actualité similaires."""
+        news1 = "Le président annonce de nouvelles mesures économiques"
+        news2 = "Le chef de l'État dévoile des mesures pour l'économie"
+        similarity = self.calculator.calculate_similarity(news1, news2)
+        self.assertGreater(similarity, 0.0)
+
+    def test_programming_languages(self):
+        """Test avec des phrases sur la programmation."""
+        s1 = "Python est un langage de programmation"
+        s2 = "Java est un langage de programmation"
+        similarity = self.calculator.calculate_similarity(s1, s2)
+
+        # 5 mots communs (est, un, langage, de, programmation)
+        # 7 mots au total
+        expected = 5/7
+        self.assertAlmostEqual(similarity, expected, places=3)
+
+    def test_animal_sentences(self):
+        """Test avec des phrases sur les animaux."""
+        s1 = "Le chat mange des croquettes"
+        s2 = "Le chien mange des os"
+        similarity = self.calculator.calculate_similarity(s1, s2)
+
+        # 3 mots communs (le, mange, des)
+        # 7 mots au total
+        expected = 3/7
+        self.assertAlmostEqual(similarity, expected, places=3)
