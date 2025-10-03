@@ -421,8 +421,8 @@ def run_performance_summary():
 
         print(f"  {size:3d} phrases → {comparisons:5d} comparaisons en {execution_time:.3f}s "
               f"({comp_per_sec:.0f} comp/s)")
-              
-              
+
+
 if __name__ == "__main__":
     print("="*70)
     print("TESTS UNITAIRES - SIMILARITÉ DE JACCARD")
