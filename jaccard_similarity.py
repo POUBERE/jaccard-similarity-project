@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-git 
-=======
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -266,6 +263,7 @@ def run_example_tests(calculator: JaccardSimilarity):
             print(f"{similarity:8.4f}", end="")
         print()
 
+
 def interactive_mode(calculator: JaccardSimilarity):
     """
     Mode interactif pour saisir des phrases manuellement.
@@ -299,6 +297,7 @@ def interactive_mode(calculator: JaccardSimilarity):
         print(f"Total mots uniques: {len(set1.union(set2))} mots")
         print("-" * 60)
 
+
 def main():
     """Fonction principale avec interface en ligne de commande."""
     parser = argparse.ArgumentParser(
@@ -328,4 +327,3 @@ def main():
 
 if __name__ == "__main__":
     main()
->>>>>>> 7b3c252564123b3da3254c750fcb4066af184325
