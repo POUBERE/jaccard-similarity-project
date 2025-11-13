@@ -25,6 +25,19 @@ Lance des exemples de démonstration.
 
 ```bash
 python jaccard_similarity.py --interactive
+
+# Prise en compte de la casse
+python jaccard_similarity.py --interactive --case-sensitive
+
+# Suppression des stop-words français
+python jaccard_similarity.py --interactive --remove-stopwords
+
+# Utilisation du stemming français
+python jaccard_similarity.py --interactive --use-stemming
+
+# Combinaison d'options
+python jaccard_similarity.py --interactive --remove-stopwords --use-stemming
+
 ```
 
 Entrez ensuite vos phrases :
@@ -34,7 +47,15 @@ Phrase 1: Le chat mange
 Phrase 2: Le chien mange
 ```
 
-### 3. Utiliser comme module Python
+### 3. Export des résultats
+
+```bash
+python jaccard_similarity.py --export csv
+python jaccard_similarity.py --export json
+python jaccard_similarity.py --export both
+```
+
+### 4. Utiliser comme module Python
 
 ```python
 from jaccard_similarity import JaccardSimilarity
