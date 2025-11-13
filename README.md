@@ -1,18 +1,5 @@
 # Projet Machine Learning non Supervisé - Similarité de Jaccard
 
-## Version 2.0
-
-**Date de sortie :** Octobre 2025
-
-### Nouveautés majeures
-
-- **Distance de Jaccard** : Métrique complémentaire à la similarité
-- **Stemming français** : Normalisation des mots à leur racine
-- **Stop-words français** : Filtrage de 60+ mots courants
-- **Interprétation contextuelle** : Analyse adaptée selon le contexte d'application
-- **Export de données** : Sauvegarde des résultats en CSV et JSON
-- **Interface graphique améliorée** : Nouvelles options et onglet d'export
-
 ---
 
 ## Description
@@ -98,20 +85,24 @@ Résultat:
   Mots total: ['chat', 'chien', 'croquettes', 'des', 'le', 'mange'] (6)
 ```
 
-### 3. Options avancées (NOUVEAU v2.0)
+### 3. Options avancées
 
 ```bash
 # Prise en compte de la casse
 python jaccard_similarity.py --case-sensitive
+python jaccard_similarity.py --interactive --case-sensitive
 
 # Suppression des stop-words français
 python jaccard_similarity.py --remove-stopwords
+python jaccard_similarity.py --interactive --remove-stopwords
 
 # Utilisation du stemming français
 python jaccard_similarity.py --use-stemming
+python jaccard_similarity.py --interactive --use-stemming
 
 # Combinaison d'options
 python jaccard_similarity.py --remove-stopwords --use-stemming
+python jaccard_similarity.py --interactive --remove-stopwords --use-stemming
 
 # Export des résultats
 python jaccard_similarity.py --export csv
@@ -119,7 +110,7 @@ python jaccard_similarity.py --export json
 python jaccard_similarity.py --export both
 ```
 
-### 4. Interface graphique (NOUVEAU v2.0)
+### 4. Interface graphique
 
 ```bash
 python jaccard_gui.py
@@ -177,7 +168,7 @@ print(f"Distance: {distance:.4f}")      # 0.3333
 - Similarité : 4/6 = 0.6667
 - Distance : 1 - 0.6667 = 0.3333
 
-### Exemple 2 : Utilisation des stop-words (NOUVEAU v2.0)
+### Exemple 2 : Utilisation des stop-words
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -201,7 +192,7 @@ print(f"Avec stop-words: {sim2:.4f}")  # 0.2500
 # Les stop-words améliorent la précision en se concentrant sur les mots essentiels
 ```
 
-### Exemple 3 : Utilisation du stemming (NOUVEAU v2.0)
+### Exemple 3 : Utilisation du stemming
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -223,7 +214,7 @@ sim2 = calc_stemming.calculate_similarity(
 print(f"Avec stemming: {sim2:.4f}")  # Similarité plus élevée
 ```
 
-### Exemple 4 : Combinaison optimale (NOUVEAU v2.0)
+### Exemple 4 : Combinaison optimale
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -244,7 +235,7 @@ print(f"Similarité optimale: {similarity:.4f}")  # Haute similarité
 # Cette configuration détecte mieux la similarité sémantique !
 ```
 
-### Exemple 5 : Interprétation contextuelle (NOUVEAU v2.0)
+### Exemple 5 : Interprétation contextuelle
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -290,7 +281,7 @@ Contexte: diversity
   Recommandations: Aucune recommandation spécifique
 ```
 
-### Exemple 6 : Export des résultats (NOUVEAU v2.0)
+### Exemple 6 : Export des résultats
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -321,7 +312,7 @@ print(f"JSON créé: {json_file}")
 # Sortie: jaccard_results_20251003_143022.json
 ```
 
-### Exemple 7 : Analyse détaillée avec distance (NOUVEAU v2.0)
+### Exemple 7 : Analyse détaillée avec distance
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -344,7 +335,7 @@ print(f"Distance: {result['jaccard_distance']:.4f}")
 print(f"Vérification: {result['jaccard_similarity'] + result['jaccard_distance']:.4f}")
 ```
 
-### Exemple 8 : Matrice de distance (NOUVEAU v2.0)
+### Exemple 8 : Matrice de distance
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -373,7 +364,7 @@ for i, row in enumerate(dist_matrix):
     print(f"  {i}: {[f'{val:.2f}' for val in row]}")
 ```
 
-### Exemple 9 : Recherche de paires extrêmes (NOUVEAU v2.0)
+### Exemple 9 : Recherche de paires extrêmes
 
 ```python
 from jaccard_similarity import JaccardSimilarity
@@ -431,7 +422,7 @@ calculate_similarity_detailed(sentence1: str, sentence2: str) -> Dict
 
 Version détaillée retournant tous les détails du calcul.
 
-##### Calcul de distance (NOUVEAU v2.0)
+##### Calcul de distance
 
 ```python
 calculate_distance(sentence1: str, sentence2: str) -> float
@@ -477,9 +468,9 @@ Trouve la paire la plus similaire.
 get_most_different_pair(sentences: List[str]) -> Tuple[int, int, float]
 ```
 
-Trouve la paire la plus différente. (NOUVEAU v2.0)
+Trouve la paire la plus différente.
 
-##### Interprétation (NOUVEAU v2.0)
+##### Interprétation
 
 ```python
 interpret_similarity(similarity: float, context: str = 'general') -> Dict
@@ -501,7 +492,7 @@ Interprète une distance selon le contexte.
 - `search` : Pertinence de recherche
 - `diversity` : Analyse de diversité
 
-##### Export (NOUVEAU v2.0)
+##### Export
 
 ```python
 export_results_to_csv(results: List[Dict], filename: str = None) -> str
@@ -529,7 +520,7 @@ Le programme applique automatiquement les transformations suivantes :
 6. Filtrage des stop-words (si `remove_stopwords=True`) - v2.0
 7. Application du stemming (si `use_stemming=True`) - v2.0
 
-### Stop-words français (v2.0)
+### Stop-words français
 
 Plus de 60 mots courants filtrés :
 
@@ -539,7 +530,7 @@ Plus de 60 mots courants filtrés :
 - Conjonctions : et, ou, mais, donc, or, ni, car
 - Et bien d'autres...
 
-### Stemming français (v2.0)
+### Stemming français
 
 Normalisation basique des mots :
 
@@ -573,7 +564,7 @@ Normalisation basique des mots :
 
 L'algorithme reste efficace même avec de grandes phrases ou de nombreuses comparaisons.
 
-### Tests de performance (v2.0)
+### Tests de performance
 
 ```
   10 phrases →    45 comparaisons en 0.001s (42751 comp/s)
@@ -590,7 +581,7 @@ L'algorithme reste efficace même avec de grandes phrases ou de nombreuses compa
 
 Le fichier `test_jaccard.py` contient **50+ tests** couvrant :
 
-**Tests de base (v1.0) :**
+**Tests de base :**
 
 - Phrases identiques (similarité = 1.0)
 - Phrases sans mots communs (similarité = 0.0)
@@ -600,7 +591,7 @@ Le fichier `test_jaccard.py` contient **50+ tests** couvrant :
 - Propriétés mathématiques (réflexivité, symétrie)
 - Tests de performance
 
-**Nouveaux tests (v2.0) :**
+**Nouveaux tests :**
 
 - Distance de Jaccard (8 tests)
 - Stop-words français (4 tests)
