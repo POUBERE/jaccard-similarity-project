@@ -454,3 +454,4 @@ if __name__ == "__main__":
     stats = lemmatizer.get_stats()
     for key, value in stats.items():
         print(f"  {key}: {value}")
+        
