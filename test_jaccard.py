@@ -1,437 +1,364 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tests unitaires pour le calculateur de similarité de Jaccard
+Tests unitaires
 Projet de Machine Learning non Supervisé
 
-Usage: python test_jaccard.py
+Auteurs: OUEDRAOGO Lassina, OUEDRAOGO Rasmane, POUBERE Abdourazakou
+Date: Novembre 2025
 """
 
 import unittest
-import time
-import sys
-import os
-
-from jaccard_similarity import JaccardSimilarity
-
-
-class TestJaccardSimilarityBasic(unittest.TestCase):
-    """Classe pour tester les fonctionnalités de base."""
-
-    def setUp(self):
-        """Initialisation des calculateurs pour les tests."""
-        self.calculator = JaccardSimilarity()
-        self.calculator_case_sensitive = JaccardSimilarity(case_sensitive=True)
-        self.calculator_with_punct = JaccardSimilarity(
-            remove_punctuation=False)
-
-    def test_identical_sentences(self):
-        """Vérification qu'une phrase identique à elle-même donne 1.0."""
-        sentence = "Le chat mange des croquettes"
-        similarity = self.calculator.calculate_similarity(sentence, sentence)
-        self.assertEqual(similarity, 1.0)
-
-    def test_completely_different_sentences(self):
-        """Deux phrases complètement différentes doivent donner 0.0."""
-        sentence1 = "Le chat mange"
-        sentence2 = "Python programmation"
-        similarity = self.calculator.calculate_similarity(sentence1, sentence2)
-        self.assertEqual(similarity, 0.0)
-
-    def test_partial_similarity(self):
-        """Test du calcul avec des phrases qui ont des mots en commun."""
-        sentence1 = "Le chat mange des croquettes"
-        sentence2 = "Le chien mange des croquettes"
-
-        # 4 mots en commun (le, mange, des, croquettes)
-        # 6 mots au total (le, chat, chien, mange, des, croquettes)
-        # Donc 4/6 = 0.6667
-        similarity = self.calculator.calculate_similarity(sentence1, sentence2)
-        self.assertAlmostEqual(similarity, 4/6, places=4)
-
-    def test_empty_sentences(self):
-        """Test du comportement avec des chaînes vides."""
-        similarity_both_empty = self.calculator.calculate_similarity("", "")
-        self.assertEqual(similarity_both_empty, 0.0)
-
-        similarity_one_empty = self.calculator.calculate_similarity(
-            "", "hello world")
-        self.assertEqual(similarity_one_empty, 0.0)
-
-    def test_single_word_sentences(self):
-        """Comparaison de phrases d'un seul mot."""
-        similarity_same = self.calculator.calculate_similarity("chat", "chat")
-        self.assertEqual(similarity_same, 1.0)
-
-        similarity_diff = self.calculator.calculate_similarity("chat", "chien")
-        self.assertEqual(similarity_diff, 0.0)
+from french_synonyms import FrenchSynonyms
+from french_lemmatizer import FrenchLemmatizer
+from semantic_analyzer import SemanticAnalyzer
+from jaccard_similarity_v3 import JaccardSimilarity
 
 
-class TestPreprocessing(unittest.TestCase):
-    """Tests du prétraitement des phrases."""
+class TestFrenchSynonyms(unittest.TestCase):
+    """Tests pour le module de synonymes."""
 
     def setUp(self):
-        self.calculator = JaccardSimilarity()
+        """Initialisation avant chaque test."""
+        self.synonyms = FrenchSynonyms()
 
-    def test_preprocess_basic(self):
-        """Test simple du prétraitement."""
-        result = self.calculator.preprocess_sentence("Hello World")
-        expected = {'hello', 'world'}
-        self.assertEqual(result, expected)
+    def test_get_synonyms(self):
+        """Test de récupération des synonymes."""
+        syns = self.synonyms.get_synonyms('chat')
+        self.assertIn('chat', syns)
+        self.assertIn('félin', syns)
+        self.assertIn('minet', syns)
 
-    def test_preprocess_punctuation(self):
-        """La ponctuation doit être supprimée."""
-        result = self.calculator.preprocess_sentence("Hello, World!")
-        expected = {'hello', 'world'}
-        self.assertEqual(result, expected)
+    def test_are_synonyms(self):
+        """Test de vérification de synonymes."""
+        self.assertTrue(self.synonyms.are_synonyms('voiture', 'automobile'))
+        self.assertTrue(self.synonyms.are_synonyms('chat', 'félin'))
+        self.assertFalse(self.synonyms.are_synonyms('chat', 'chien'))
 
-    def test_preprocess_empty(self):
-        """Une phrase vide doit retourner un ensemble vide."""
-        result = self.calculator.preprocess_sentence("")
-        expected = set()
-        self.assertEqual(result, expected)
+    def test_expand_with_synonyms(self):
+        """Test d'expansion avec synonymes."""
+        words = {'chat'}
+        expanded = self.synonyms.expand_with_synonyms(words)
+        self.assertGreater(len(expanded), len(words))
+        self.assertIn('chat', expanded)
+        self.assertIn('félin', expanded)
 
-    def test_preprocess_accents(self):
-        """Les accents français doivent être préservés."""
-        result = self.calculator.preprocess_sentence("Café français")
-        expected = {'café', 'français'}
-        self.assertEqual(result, expected)
+    def test_get_common_synonyms(self):
+        """Test de mots communs avec synonymes."""
+        set1 = {'chat'}
+        set2 = {'félin'}
+        common = self.synonyms.get_common_synonyms(set1, set2)
+        # chat et félin sont synonymes, donc il devrait y avoir une intersection
+        self.assertGreater(len(common), 0)
 
-    def test_preprocess_multiple_spaces(self):
-        """Les espaces multiples doivent être gérés correctement."""
-        result = self.calculator.preprocess_sentence("Le  chat   mange")
-        expected = {'le', 'chat', 'mange'}
-        self.assertEqual(result, expected)
-
-    def test_preprocess_spaces_only(self):
-        """Une phrase avec que des espaces doit donner un ensemble vide."""
-        result = self.calculator.preprocess_sentence("   ")
-        self.assertEqual(result, set())
-
-
-class TestCaseAndPunctuation(unittest.TestCase):
-    """Tests des options de casse et ponctuation."""
-
-    def test_case_sensitivity_off(self):
-        """Par défaut, la casse ne devrait pas être prise en compte."""
-        calculator = JaccardSimilarity(case_sensitive=False)
-        similarity = calculator.calculate_similarity(
-            "Hello World", "hello world")
-        self.assertEqual(similarity, 1.0)
-
-    def test_case_sensitivity_on(self):
-        """Quand case_sensitive=True, la casse doit être respectée."""
-        calculator = JaccardSimilarity(case_sensitive=True)
-        sentence1 = "Hello World"
-        sentence2 = "hello world"
-
-        similarity = calculator.calculate_similarity(sentence1, sentence2)
-        self.assertLess(similarity, 1.0)
-
-    def test_punctuation_removal(self):
-        """La ponctuation est supprimée par défaut."""
-        calculator = JaccardSimilarity(remove_punctuation=True)
-        similarity = calculator.calculate_similarity(
-            "Hello, world!", "Hello world")
-        self.assertEqual(similarity, 1.0)
-
-    def test_punctuation_kept(self):
-        """Avec remove_punctuation=False, la ponctuation est gardée."""
-        calculator = JaccardSimilarity(remove_punctuation=False)
-        similarity = calculator.calculate_similarity("Hello!", "Hello")
-        self.assertLess(similarity, 1.0)
+    def test_add_custom_synonyms(self):
+        """Test d'ajout de synonymes personnalisés."""
+        custom = {'ia', 'intelligence artificielle', 'ai'}
+        self.synonyms.add_custom_synonyms(custom)
+        self.assertTrue(self.synonyms.are_synonyms('ia', 'ai'))
 
 
-class TestDetailedCalculation(unittest.TestCase):
-    """Tests pour le calcul détaillé."""
+class TestFrenchLemmatizer(unittest.TestCase):
+    """Tests pour le lemmatiseur."""
 
     def setUp(self):
-        self.calculator = JaccardSimilarity()
+        """Initialisation avant chaque test."""
+        self.lemmatizer = FrenchLemmatizer()
 
-    def test_detailed_result_structure(self):
-        """Vérification que le résultat détaillé contient toutes les informations."""
-        result = self.calculator.calculate_similarity_detailed(
-            "hello world", "hello python"
+    def test_lemmatize_verb_etre(self):
+        """Test de lemmatisation du verbe être."""
+        self.assertEqual(self.lemmatizer.lemmatize('suis'), 'être')
+        self.assertEqual(self.lemmatizer.lemmatize('étais'), 'être')
+        self.assertEqual(self.lemmatizer.lemmatize('serai'), 'être')
+
+    def test_lemmatize_verb_avoir(self):
+        """Test de lemmatisation du verbe avoir."""
+        self.assertEqual(self.lemmatizer.lemmatize('ai'), 'avoir')
+        self.assertEqual(self.lemmatizer.lemmatize('avais'), 'avoir')
+        self.assertEqual(self.lemmatizer.lemmatize('aurai'), 'avoir')
+
+    def test_lemmatize_verb_aller(self):
+        """Test de lemmatisation du verbe aller."""
+        self.assertEqual(self.lemmatizer.lemmatize('vais'), 'aller')
+        self.assertEqual(self.lemmatizer.lemmatize('allais'), 'aller')
+        self.assertEqual(self.lemmatizer.lemmatize('irai'), 'aller')
+
+    def test_lemmatize_regular_verb(self):
+        """Test de lemmatisation de verbes réguliers."""
+        lemma = self.lemmatizer.lemmatize('mange')
+        self.assertEqual(lemma, 'manger')
+
+        lemma = self.lemmatizer.lemmatize('mangeons')
+        self.assertEqual(lemma, 'manger')
+
+    def test_lemmatize_plural_noun(self):
+        """Test de lemmatisation de noms au pluriel."""
+        self.assertEqual(self.lemmatizer.lemmatize('chevaux'), 'cheval')
+        self.assertEqual(self.lemmatizer.lemmatize('animaux'), 'animal')
+        self.assertEqual(self.lemmatizer.lemmatize('bateaux'), 'bateau')
+        self.assertEqual(self.lemmatizer.lemmatize('chats'), 'chat')
+
+    def test_lemmatize_feminine_adjective(self):
+        """Test de lemmatisation d'adjectifs féminins."""
+        self.assertEqual(self.lemmatizer.lemmatize('belle'), 'beau')
+        self.assertEqual(self.lemmatizer.lemmatize('bonne'), 'bon')
+        self.assertEqual(self.lemmatizer.lemmatize('grande'), 'grand')
+
+    def test_add_custom_lemma(self):
+        """Test d'ajout de lemme personnalisé."""
+        self.lemmatizer.add_custom_lemma('tweets', 'tweet')
+        self.assertEqual(self.lemmatizer.lemmatize('tweets'), 'tweet')
+
+
+class TestSemanticAnalyzer(unittest.TestCase):
+    """Tests pour l'analyseur sémantique."""
+
+    def setUp(self):
+        """Initialisation avant chaque test."""
+        self.analyzer = SemanticAnalyzer()
+
+    def test_get_semantic_fields(self):
+        """Test de récupération des champs sémantiques."""
+        fields = self.analyzer.get_semantic_fields('chat')
+        self.assertIn('animaux', fields)
+
+        fields = self.analyzer.get_semantic_fields('voiture')
+        self.assertIn('véhicules', fields)
+
+    def test_are_semantically_related(self):
+        """Test de relation sémantique."""
+        # Chat et chien sont tous deux dans le champ "animaux"
+        self.assertTrue(self.analyzer.are_semantically_related('chat', 'chien'))
+
+        # Chat et voiture ne sont pas dans le même champ
+        self.assertFalse(self.analyzer.are_semantically_related('chat', 'voiture'))
+
+    def test_semantic_similarity(self):
+        """Test de similarité sémantique."""
+        # Même mot
+        sim = self.analyzer.semantic_similarity('chat', 'chat')
+        self.assertEqual(sim, 1.0)
+
+        # Mots du même champ
+        sim = self.analyzer.semantic_similarity('chat', 'chien')
+        self.assertGreater(sim, 0.0)
+
+        # Antonymes
+        sim = self.analyzer.semantic_similarity('grand', 'petit')
+        self.assertEqual(sim, 0.0)
+
+    def test_get_related_words(self):
+        """Test de recherche de mots liés."""
+        related = self.analyzer.get_related_words('chat', max_words=5)
+        self.assertGreater(len(related), 0)
+        self.assertLessEqual(len(related), 5)
+
+        # Vérifier que ce sont des tuples (mot, score)
+        for word, score in related:
+            self.assertIsInstance(word, str)
+            self.assertIsInstance(score, float)
+            self.assertGreater(score, 0.0)
+
+    def test_semantic_sentence_similarity(self):
+        """Test de similarité sémantique de phrases."""
+        set1 = {'chat', 'mange'}
+        set2 = {'chien', 'dévore'}
+
+        sim = self.analyzer.semantic_sentence_similarity(set1, set2)
+        self.assertGreaterEqual(sim, 0.0)
+        self.assertLessEqual(sim, 1.0)
+
+    def test_add_semantic_field(self):
+        """Test d'ajout de champ sémantique personnalisé."""
+        custom_field = {'python', 'java', 'javascript', 'ruby'}
+        self.analyzer.add_semantic_field('langages', custom_field)
+
+        fields = self.analyzer.get_semantic_fields('python')
+        self.assertIn('langages', fields)
+
+
+class TestJaccardSimilarity(unittest.TestCase):
+    """Tests pour la classe JaccardSimilarity."""
+
+    def test_basic_similarity_no_options(self):
+        """Test de similarité basique sans options."""
+        calc = JaccardSimilarity()
+
+        sim = calc.calculate_similarity("Le chat mange", "Le chat mange")
+        self.assertEqual(sim, 1.0)
+
+        sim = calc.calculate_similarity("Le chat mange", "Le chien court")
+        self.assertGreater(sim, 0.0)
+        self.assertLess(sim, 1.0)
+
+    def test_with_lemmatization(self):
+        """Test avec lemmatisation."""
+        calc = JaccardSimilarity(use_lemmatization=True)
+
+        # "suis" et "être" devraient être traités comme similaires
+        sim = calc.calculate_similarity("Je suis content", "Être content")
+        self.assertGreater(sim, 0.0)
+
+    def test_with_synonyms(self):
+        """Test avec gestion des synonymes."""
+        calc = JaccardSimilarity(
+            remove_stopwords=True,
+            use_synonyms=True
         )
 
-        # On vérifie que toutes les clés sont présentes
-        required_keys = [
-            'sentence1', 'sentence2', 'words_set1', 'words_set2',
-            'intersection', 'union', 'intersection_size', 'union_size',
-            'jaccard_similarity'
-        ]
-        for key in required_keys:
-            self.assertIn(key, result)
+        # "chat" et "félin" sont synonymes
+        sim = calc.calculate_similarity("chat noir", "félin blanc")
+        self.assertGreater(sim, 0.0)
 
-    def test_detailed_calculation_values(self):
-        """Test des valeurs retournées par le calcul détaillé."""
-        result = self.calculator.calculate_similarity_detailed(
-            "hello world", "hello python"
+    def test_with_semantic_analysis(self):
+        """Test avec analyse sémantique."""
+        calc = JaccardSimilarity(
+            remove_stopwords=True,
+            use_semantic_analysis=True
         )
 
-        self.assertEqual(result['words_set1'], {'hello', 'world'})
-        self.assertEqual(result['words_set2'], {'hello', 'python'})
-        self.assertEqual(result['intersection'], {'hello'})
-        self.assertEqual(result['union'], {'hello', 'world', 'python'})
-        self.assertEqual(result['intersection_size'], 1)
-        self.assertEqual(result['union_size'], 3)
-        self.assertAlmostEqual(result['jaccard_similarity'], 1/3, places=3)
+        result = calc.calculate_similarity_detailed("chat mange", "chien court")
 
+        # Devrait avoir une clé semantic_similarity
+        self.assertIn('semantic_similarity', result)
+        self.assertIn('hybrid_similarity', result)
 
-class TestMultipleComparisons(unittest.TestCase):
-    """Tests pour comparer plusieurs phrases à la fois."""
+    def test_full_configuration(self):
+        """Test avec toutes les options activées."""
+        calc = JaccardSimilarity(
+            remove_stopwords=True,
+            use_lemmatization=True,
+            use_synonyms=True,
+            use_semantic_analysis=True
+        )
 
-    def setUp(self):
-        self.calculator = JaccardSimilarity()
+        s1 = "Le chat mange une souris"
+        s2 = "Le félin dévore un rat"
 
-    def test_compare_multiple_sentences(self):
-        """Test de la comparaison de plusieurs phrases."""
-        sentences = [
-            "Le chat mange",
-            "Le chien mange",
-            "Python programmation"
+        result = calc.calculate_similarity_detailed(s1, s2)
+
+        # Vérifier toutes les clés attendues
+        self.assertIn('jaccard_similarity', result)
+        self.assertIn('semantic_similarity', result)
+        self.assertIn('hybrid_similarity', result)
+        self.assertIn('common_via_synonyms', result)
+
+        # La similarité devrait être significative
+        self.assertGreater(result['jaccard_similarity'], 0.5)
+
+    def test_hybrid_similarity(self):
+        """Test de la similarité hybride."""
+        calc = JaccardSimilarity(
+            remove_stopwords=True,
+            use_semantic_analysis=True
+        )
+
+        hybrid = calc.calculate_hybrid_similarity("chat noir", "chien blanc")
+
+        # Devrait être un float entre 0 et 1
+        self.assertIsInstance(hybrid, float)
+        self.assertGreaterEqual(hybrid, 0.0)
+        self.assertLessEqual(hybrid, 1.0)
+
+    def test_comparison_v2_vs_v3(self):
+        """Test de comparaison v2.0 vs v3.0."""
+        # Configuration v2.0
+        calc_v2 = JaccardSimilarity(
+            remove_stopwords=True,
+            use_stemming=True
+        )
+
+        # Configuration v3.0
+        calc_v3 = JaccardSimilarity(
+            remove_stopwords=True,
+            use_lemmatization=True,
+            use_synonyms=True
+        )
+
+        s1 = "Le chat mange une souris"
+        s2 = "Le félin dévore un rat"
+
+        sim_v2 = calc_v2.calculate_similarity(s1, s2)
+        sim_v3 = calc_v3.calculate_similarity(s1, s2)
+
+        # v3.0 devrait être significativement meilleure
+        self.assertGreater(sim_v3, sim_v2)
+        self.assertGreater(sim_v3, 0.5)
+
+    def test_export_json(self):
+        """Test d'export JSON."""
+        calc = JaccardSimilarity(
+            use_lemmatization=True,
+            use_synonyms=True
+        )
+
+        results = [
+            calc.calculate_similarity_detailed("chat noir", "félin blanc")
         ]
 
-        results = self.calculator.compare_multiple_sentences(sentences)
+        filename = calc.export_results_to_json(results, "test_export_v3.json")
 
-        # Avec 3 phrases, on devrait avoir 3 comparaisons: (0,1), (0,2), (1,2)
-        self.assertEqual(len(results), 3)
+        self.assertIsNotNone(filename)
 
-        # Chaque résultat doit être bien formaté
-        for idx1, idx2, similarity in results:
-            self.assertIsInstance(idx1, int)
-            self.assertIsInstance(idx2, int)
-            self.assertIsInstance(similarity, float)
-            self.assertTrue(0 <= similarity <= 1)
-            self.assertLess(idx1, idx2)
+        # Nettoyer
+        import os
+        if filename and os.path.exists(filename):
+            os.remove(filename)
 
-    def test_get_most_similar_pair(self):
-        """Recherche de la paire la plus similaire dans une liste."""
-        sentences = [
-            "Le chat mange des croquettes",
-            "Python est génial",
-            "Le chien mange des croquettes",
-            "Java est bien"
-        ]
+    def test_get_config_summary(self):
+        """Test du résumé de configuration."""
+        calc = JaccardSimilarity(
+            use_lemmatization=True,
+            use_synonyms=True,
+            use_semantic_analysis=True
+        )
 
-        idx1, idx2, max_similarity = self.calculator.get_most_similar_pair(
-            sentences)
+        summary = calc.get_config_summary()
 
-        # Les phrases 0 et 2 devraient être les plus similaires
-        self.assertTrue((idx1 == 0 and idx2 == 2) or (idx1 == 2 and idx2 == 0))
-        self.assertGreater(max_similarity, 0.5)
-
-    def test_similarity_matrix(self):
-        """Test de la génération d'une matrice de similarité."""
-        sentences = ["chat", "chien", "oiseau"]
-        matrix = self.calculator.get_similarity_matrix(sentences)
-
-        # La matrice doit être 3x3
-        self.assertEqual(len(matrix), 3)
-        for row in matrix:
-            self.assertEqual(len(row), 3)
-
-        # La diagonale doit contenir des 1.0
-        for i in range(3):
-            self.assertEqual(matrix[i][i], 1.0)
-
-        # La matrice doit être symétrique
-        for i in range(3):
-            for j in range(3):
-                self.assertAlmostEqual(matrix[i][j], matrix[j][i], places=10)
+        self.assertIsInstance(summary, str)
+        self.assertIn('v3.0', summary.lower())
 
 
-class TestRealWorldExamples(unittest.TestCase):
-    """Tests avec des cas réalistes."""
+def run_tests():
+    """Lance tous les tests."""
+    print("=" * 80)
+    print("TESTS UNITAIRES - VERSION 3.0")
+    print("=" * 80)
+    print()
 
-    def setUp(self):
-        self.calculator = JaccardSimilarity()
+    # Créer une suite de tests
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
 
-    def test_similar_news_articles(self):
-        """Test avec des titres d'actualité similaires."""
-        news1 = "Le président annonce de nouvelles mesures économiques"
-        news2 = "Le chef de l'État dévoile des mesures pour l'économie"
-        similarity = self.calculator.calculate_similarity(news1, news2)
-        self.assertGreater(similarity, 0.0)
+    # Ajouter tous les tests
+    suite.addTests(loader.loadTestsFromTestCase(TestFrenchSynonyms))
+    suite.addTests(loader.loadTestsFromTestCase(TestFrenchLemmatizer))
+    suite.addTests(loader.loadTestsFromTestCase(TestSemanticAnalyzer))
+    suite.addTests(loader.loadTestsFromTestCase(TestJaccardSimilarity))
 
-    def test_programming_languages(self):
-        """Test avec des phrases sur la programmation."""
-        s1 = "Python est un langage de programmation"
-        s2 = "Java est un langage de programmation"
-        similarity = self.calculator.calculate_similarity(s1, s2)
+    # Exécuter les tests
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
 
-        # 5 mots communs (est, un, langage, de, programmation)
-        # 7 mots au total
-        expected = 5/7
-        self.assertAlmostEqual(similarity, expected, places=3)
+    # Afficher le résumé
+    print()
+    print("=" * 80)
+    print("RÉSUMÉ DES TESTS")
+    print("=" * 80)
+    print(f"Tests exécutés: {result.testsRun}")
+    print(f"Réussites: {result.testsRun - len(result.failures) - len(result.errors)}")
+    print(f"Échecs: {len(result.failures)}")
+    print(f"Erreurs: {len(result.errors)}")
+    print()
 
-    def test_animal_sentences(self):
-        """Test avec des phrases sur les animaux."""
-        s1 = "Le chat mange des croquettes"
-        s2 = "Le chien mange des os"
-        similarity = self.calculator.calculate_similarity(s1, s2)
+    if result.wasSuccessful():
+        print("[OK] TOUS LES TESTS SONT PASSÉS AVEC SUCCÈS!")
+    else:
+        print("[ERREUR] Certains tests ont échoué.")
 
-        # 3 mots communs (le, mange, des)
-        # 7 mots au total
-        expected = 3/7
-        self.assertAlmostEqual(similarity, expected, places=3)
-
-
-class TestMathematicalProperties(unittest.TestCase):
-    """Vérification des propriétés mathématiques de Jaccard."""
-
-    def setUp(self):
-        self.calculator = JaccardSimilarity()
-
-    def test_range_property(self):
-        """La similarité doit toujours être entre 0 et 1."""
-        sentences = [
-            "chat mange",
-            "chien court",
-            "oiseau vole",
-            "poisson nage"
-        ]
-
-        for s1 in sentences:
-            for s2 in sentences:
-                similarity = self.calculator.calculate_similarity(s1, s2)
-                self.assertTrue(0 <= similarity <= 1,
-                                f"Similarité hors limites: {similarity}")
-
-    def test_reflexivity(self):
-        """Une phrase comparée à elle-même doit toujours donner 1."""
-        sentences = ["chat", "chien court", "oiseau vole rapidement"]
-
-        for sentence in sentences:
-            similarity = self.calculator.calculate_similarity(
-                sentence, sentence)
-            self.assertEqual(similarity, 1.0,
-                             f"Réflexivité échouée pour '{sentence}'")
-
-    def test_symmetry(self):
-        """Jaccard(A,B) doit être égal à Jaccard(B,A)."""
-        pairs = [
-            ("chat mange", "chien court"),
-            ("python code", "java programmation"),
-            ("bonjour monde", "hello world")
-        ]
-
-        for s1, s2 in pairs:
-            sim1 = self.calculator.calculate_similarity(s1, s2)
-            sim2 = self.calculator.calculate_similarity(s2, s1)
-            self.assertAlmostEqual(sim1, sim2, places=10,
-                                   msg=f"Symétrie échouée pour '{s1}' et '{s2}'")
-
-
-class TestEdgeCases(unittest.TestCase):
-    """Tests de cas particuliers et limites."""
-
-    def setUp(self):
-        self.calculator = JaccardSimilarity()
-
-    def test_only_punctuation(self):
-        """Phrases composées uniquement de ponctuation."""
-        similarity = self.calculator.calculate_similarity("!!!", "???")
-        self.assertEqual(similarity, 0.0)
-
-    def test_repeated_words(self):
-        """Les mots répétés ne comptent qu'une fois dans les ensembles."""
-        s1 = "chat chat chat"
-        s2 = "chat"
-        similarity = self.calculator.calculate_similarity(s1, s2)
-        self.assertEqual(similarity, 1.0)
-
-    def test_very_long_sentences(self):
-        """Test avec des phrases très longues pour vérifier la robustesse."""
-        long_sentence1 = " ".join(["mot"] * 100)
-        long_sentence2 = " ".join(["mot"] * 50)
-        similarity = self.calculator.calculate_similarity(
-            long_sentence1, long_sentence2)
-        self.assertEqual(similarity, 1.0)
-
-    def test_special_characters(self):
-        """Test avec des caractères spéciaux."""
-        s1 = "hello@world.com"
-        s2 = "hello world com"
-        similarity = self.calculator.calculate_similarity(s1, s2)
-        self.assertGreater(similarity, 0.0)
-        self.assertAlmostEqual(similarity, 1.0, places=2)
-
-
-class TestPerformance(unittest.TestCase):
-    """Tests de performance du calculateur."""
-
-    def setUp(self):
-        self.calculator = JaccardSimilarity()
-
-    def test_large_sentences_performance(self):
-        """Mesure du temps de calcul avec de grandes phrases."""
-        words = [f"mot{i}" for i in range(1000)]
-        sentence1 = " ".join(words[:800])
-        sentence2 = " ".join(words[200:])
-
-        start_time = time.time()
-        similarity = self.calculator.calculate_similarity(sentence1, sentence2)
-        end_time = time.time()
-
-        # Ça devrait prendre moins d'une seconde
-        self.assertLess(end_time - start_time, 1.0)
-
-        # On vérifie aussi que le résultat est cohérent
-        self.assertTrue(0 <= similarity <= 1)
-
-    def test_many_comparisons_performance(self):
-        """Test de performance avec beaucoup de comparaisons."""
-        sentences = [f"phrase numéro {i} avec des mots" for i in range(50)]
-
-        start_time = time.time()
-        results = self.calculator.compare_multiple_sentences(sentences)
-        end_time = time.time()
-
-        # On doit avoir 50*49/2 = 1225 comparaisons
-        expected_comparisons = 50 * 49 // 2
-        self.assertEqual(len(results), expected_comparisons)
-
-        # Ça devrait prendre moins de 2 secondes
-        self.assertLess(end_time - start_time, 2.0)
-
-
-def run_performance_summary():
-    """Affichage d'un résumé des performances."""
-    print("\n" + "="*70)
-    print("RÉSUMÉ DES PERFORMANCES")
-    print("="*70)
-
-    calculator = JaccardSimilarity()
-
-    test_sizes = [10, 50, 100, 200]
-
-    for size in test_sizes:
-        sentences = [
-            f"phrase de test {i} avec quelques mots" for i in range(size)]
-
-        start_time = time.time()
-        results = calculator.compare_multiple_sentences(sentences)
-        end_time = time.time()
-
-        execution_time = end_time - start_time
-        comparisons = len(results)
-        comp_per_sec = comparisons / \
-            execution_time if execution_time > 0 else float('inf')
-
-        print(f"  {size:3d} phrases → {comparisons:5d} comparaisons en {execution_time:.3f}s "
-              f"({comp_per_sec:.0f} comp/s)")
+    return result.wasSuccessful()
 
 
 if __name__ == "__main__":
-    print("="*70)
-    print("TESTS UNITAIRES - SIMILARITÉ DE JACCARD")
-    print("="*70)
-
-    unittest.main(verbosity=2, exit=False)
-
-    run_performance_summary()
-
-    print("\n" + "="*70)
-    print("TESTS TERMINÉS")
-    print("="*70)
+    success = run_tests()
+    exit(0 if success else 1)
