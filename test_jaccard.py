@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tests unitaires CORRIGÉS pour la version 3.0
+Tests unitaires
 Projet de Machine Learning non Supervisé
 
 Auteurs: OUEDRAOGO Lassina, OUEDRAOGO Rasmane, POUBERE Abdourazakou
@@ -225,7 +225,7 @@ class TestJaccardSimilarity(unittest.TestCase):
         self.assertIn('hybrid_similarity', result)
 
     def test_full_configuration(self):
-        """Test avec toutes les options activées - SEUILS CORRIGÉS."""
+        """Test avec toutes les options activées."""
         calc = JaccardSimilarity(
             remove_stopwords=True,
             use_lemmatization=True,
@@ -244,7 +244,6 @@ class TestJaccardSimilarity(unittest.TestCase):
         self.assertIn('hybrid_similarity', result)
         self.assertIn('common_via_synonyms', result)
 
-        # CORRECTION: Seuils réalistes basés sur les résultats réels
         # Avec lemmatisation + synonymes + sémantique, on s'attend à au moins 0.25
         self.assertGreater(result['jaccard_similarity'], 0.25)
         
@@ -274,7 +273,7 @@ class TestJaccardSimilarity(unittest.TestCase):
             self.assertIn('jaccard_similarity', result)
 
     def test_comparison_v2_vs_v3(self):
-        """Test de comparaison v2.0 vs v3.0 - SEUILS CORRIGÉS."""
+        """Test de comparaison v2.0 vs v3.0."""
         # Configuration v2.0
         calc_v2 = JaccardSimilarity(
             remove_stopwords=True,
@@ -294,13 +293,11 @@ class TestJaccardSimilarity(unittest.TestCase):
         sim_v2 = calc_v2.calculate_similarity(s1, s2)
         sim_v3 = calc_v3.calculate_similarity(s1, s2)
 
-        # CORRECTION: v3.0 devrait être meilleure que v2.0
-        # et au moins 0.25 (au lieu de 0.5)
         self.assertGreater(sim_v3, sim_v2)
         self.assertGreater(sim_v3, 0.25)
 
     def test_export_json_alternative(self):
-        """Test d'export JSON - VERSION ALTERNATIVE."""
+        """Test d'export JSON."""
         calc = JaccardSimilarity(
             use_lemmatization=True,
             use_synonyms=True
@@ -342,7 +339,7 @@ class TestJaccardSimilarity(unittest.TestCase):
 def run_tests():
     """Lance tous les tests."""
     print("=" * 80)
-    print("TESTS UNITAIRES - VERSION 3.0.1 CORRIGÉE")
+    print("TESTS UNITAIRES")
     print("=" * 80)
     print()
 

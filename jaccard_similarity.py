@@ -90,13 +90,12 @@ class JaccardSimilarity:
     """
     Classe améliorée pour calculer la similarité de Jaccard entre phrases.
 
-    VERSION 3.0 - Nouvelles fonctionnalités:
     - use_synonyms: Gestion des synonymes
     - use_lemmatization: Lemmatisation avancée au lieu du stemming basique
     - use_semantic_analysis: Analyse sémantique pour liens conceptuels
     """
 
-    # Stop-words français (identique à la v2.0)
+    # Stop-words français
     FRENCH_STOPWORDS = {
         'le', 'la', 'les', 'un', 'une', 'des', 'de', 'du', 'au', 'aux',
         'ce', 'cet', 'cette', 'ces', 'mon', 'ton', 'son', 'ma', 'ta', 'sa',
@@ -124,10 +123,10 @@ class JaccardSimilarity:
             case_sensitive: Si True, "Python" et "python" sont différents
             remove_punctuation: Si True, enlève la ponctuation
             remove_stopwords: Si True, filtre les stop-words
-            use_stemming: Si True, applique le stemming (v2.0)
-            use_lemmatization: Si True, applique la lemmatisation (v3.0 - NOUVEAU)
-            use_synonyms: Si True, gère les synonymes (v3.0 - NOUVEAU)
-            use_semantic_analysis: Si True, analyse sémantique (v3.0 - NOUVEAU)
+            use_stemming: Si True, applique le stemming
+            use_lemmatization: Si True, applique la lemmatisation
+            use_synonyms: Si True, gère les synonymes
+            use_semantic_analysis: Si True, analyse sémantique
 
         Note: Si use_lemmatization est True, use_stemming est ignoré
         """
@@ -155,7 +154,7 @@ class JaccardSimilarity:
             3. Découpage en mots
             4. Filtrage des stop-words
             5. Lemmatisation OU Stemming
-            6. [NOUVEAU v3.0] Expansion avec synonymes (si activé)
+            6. Expansion avec synonymes (si activé)
         """
         # Normalisation de la casse
         if not self.case_sensitive:
@@ -181,7 +180,7 @@ class JaccardSimilarity:
         # Conversion en Set
         word_set = set(words)
 
-        # [NOUVEAU v3.0] Expansion avec synonymes
+        # Expansion avec synonymes
         if self.use_synonyms and self.synonyms:
             word_set = self.synonyms.expand_with_synonyms(word_set)
 
@@ -191,7 +190,7 @@ class JaccardSimilarity:
         """
         Calcule la similarité de Jaccard avec tous les détails.
 
-        VERSION 3.0: Inclut maintenant des informations sur les synonymes
+        Inclut des informations sur les synonymes
         et la similarité sémantique.
         """
         # Prétraitement
@@ -218,7 +217,7 @@ class JaccardSimilarity:
             'jaccard_distance': 1.0 - jaccard_similarity
         }
 
-        # [NOUVEAU v3.0] Ajouter la similarité sémantique si activée
+        # Ajouter la similarité sémantique si activée
         if self.use_semantic_analysis and self.semantic:
             semantic_sim = self.semantic.semantic_sentence_similarity(set1, set2)
             result['semantic_similarity'] = semantic_sim
@@ -227,7 +226,7 @@ class JaccardSimilarity:
             hybrid_sim = (0.6 * jaccard_similarity + 0.4 * semantic_sim)
             result['hybrid_similarity'] = hybrid_sim
 
-        # [NOUVEAU v3.0] Informations sur les synonymes
+        # Informations sur les synonymes
         if self.use_synonyms and self.synonyms:
             # Compter les mots communs via synonymes
             common_via_synonyms = self.synonyms.get_common_synonyms(set1, set2)
@@ -260,13 +259,13 @@ class JaccardSimilarity:
             features.append("Filtrage stop-words")
 
         if not features:
-            return "Configuration basique (v1.0)"
+            return "Configuration basique"
 
-        return f"Configuration v3.0: {', '.join(features)}"
+        return f"Configuration : {', '.join(features)}"
 
 
 # ============================================================================
-# MODE INTERACTIF (NOUVEAU - intégré depuis v2.0)
+# MODE INTERACTIF 
 # ============================================================================
 
 def interactive_mode(calculator: JaccardSimilarity):
@@ -277,17 +276,17 @@ def interactive_mode(calculator: JaccardSimilarity):
     Taper 'quit' pour sortir.
     """
     print("=" * 80)
-    print("MODE INTERACTIF - CALCULATEUR DE JACCARD VERSION 3.0")
+    print("MODE INTERACTIF - CALCULATEUR DE JACCARD")
     print("=" * 80)
     print()
     print("Configuration active:")
     print(f"  - Sensibilité à la casse: {'Activée' if calculator.case_sensitive else 'Désactivée'}")
     print(f"  - Suppression ponctuation: {'Activée' if calculator.remove_punctuation else 'Désactivée'}")
     print(f"  - Stop-words: {'Activés' if calculator.remove_stopwords else 'Désactivés'}")
-    print(f"  - Stemming (v2.0): {'Activé' if calculator.use_stemming else 'Désactivé'}")
-    print(f"  - Lemmatisation (v3.0): {'Activée' if calculator.use_lemmatization else 'Désactivée'}")
-    print(f"  - Synonymes (v3.0): {'Activés' if calculator.use_synonyms else 'Désactivés'}")
-    print(f"  - Analyse sémantique (v3.0): {'Activée' if calculator.use_semantic_analysis else 'Désactivée'}")
+    print(f"  - Stemming : {'Activé' if calculator.use_stemming else 'Désactivé'}")
+    print(f"  - Lemmatisation : {'Activée' if calculator.use_lemmatization else 'Désactivée'}")
+    print(f"  - Synonymes : {'Activés' if calculator.use_synonyms else 'Désactivés'}")
+    print(f"  - Analyse sémantique : {'Activée' if calculator.use_semantic_analysis else 'Désactivée'}")
     print()
     print("💡 Entrez 'quit' pour quitter")
     print("=" * 80)
@@ -351,10 +350,10 @@ def interactive_mode(calculator: JaccardSimilarity):
             
             print(f"Catégorie: {category}")
 
-            # Affichage de la similarité sémantique (v3.0)
+            # Affichage de la similarité sémantique
             if calculator.use_semantic_analysis and 'semantic_similarity' in result:
                 print(f"\n{'─' * 80}")
-                print("🧠 SIMILARITÉ SÉMANTIQUE (v3.0)")
+                print("🧠 SIMILARITÉ SÉMANTIQUE")
                 print("─" * 80)
                 print(f"Score: {result['semantic_similarity']:.4f} ({result['semantic_similarity']*100:.2f}%)")
                 
@@ -364,10 +363,10 @@ def interactive_mode(calculator: JaccardSimilarity):
                     print("─" * 80)
                     print(f"Score: {result['hybrid_similarity']:.4f} ({result['hybrid_similarity']*100:.2f}%)")
 
-            # Affichage des synonymes détectés (v3.0)
+            # Affichage des synonymes détectés
             if calculator.use_synonyms and 'common_via_synonyms' in result:
                 print(f"\n{'─' * 80}")
-                print("🔄 MOTS COMMUNS VIA SYNONYMES (v3.0)")
+                print("🔄 MOTS COMMUNS VIA SYNONYMES")
                 print("─" * 80)
                 print(f"Nombre: {result['common_via_synonyms_count']}")
                 if result['common_via_synonyms_count'] > 0:
@@ -391,7 +390,7 @@ def interactive_mode(calculator: JaccardSimilarity):
 
 
 # ============================================================================
-# DÉMONSTRATION v2.0 vs v3.0
+# DÉMONSTRATION COMPARAISON V2.0 vs V3.0
 # ============================================================================
 
 def run_comparison_v2_v3():
@@ -477,7 +476,7 @@ def run_comparison_v2_v3():
 def main():
     """Fonction principale."""
     parser = argparse.ArgumentParser(
-        description='Calcul de similarité de Jaccard - VERSION 3.0 AVANCÉE',
+        description='Calcul de similarité de Jaccard',
         epilog='Nouvelles fonctionnalités v3.0:\n'
                '  --use-lemmatization: Lemmatisation avancée\n'
                '  --use-synonyms: Gestion des synonymes\n'
@@ -497,11 +496,11 @@ def main():
     parser.add_argument('--use-stemming', action='store_true',
                         help='Applique le stemming (v2.0)')
     parser.add_argument('--use-lemmatization', action='store_true',
-                        help='[NOUVEAU v3.0] Applique la lemmatisation avancée')
+                        help='Applique la lemmatisation avancée')
     parser.add_argument('--use-synonyms', action='store_true',
-                        help='[NOUVEAU v3.0] Gère les synonymes')
+                        help='Gère les synonymes')
     parser.add_argument('--use-semantic', action='store_true',
-                        help='[NOUVEAU v3.0] Active l\'analyse sémantique')
+                        help='Active l\'analyse sémantique')
     parser.add_argument('--interactive', action='store_true',
                         help='Mode interactif pour saisir des phrases')
     parser.add_argument('--demo', action='store_true',
@@ -533,7 +532,7 @@ def main():
 
     # Mode par défaut : affichage des informations
     print("=" * 80)
-    print("CALCULATEUR DE SIMILARITÉ DE JACCARD - VERSION 3.0")
+    print("CALCULATEUR DE SIMILARITÉ DE JACCARD")
     print("=" * 80)
     print()
     print(calculator.get_config_summary())
