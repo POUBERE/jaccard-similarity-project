@@ -253,7 +253,7 @@ class TestJaccardSimilarity(unittest.TestCase):
             self.assertLessEqual(result['hybrid_similarity'], 1.0)
 
     def test_hybrid_similarity_alternative(self):
-        """Test de la similarité hybride - VERSION ALTERNATIVE."""
+        """Test de la similarité hybride."""
         calc = JaccardSimilarity(
             remove_stopwords=True,
             use_semantic_analysis=True
