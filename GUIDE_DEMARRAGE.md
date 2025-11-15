@@ -141,6 +141,15 @@ python jaccard_similarity.py --interactive
 # Avec lemmatisation seulement
 python jaccard_similarity.py --interactive --use-lemmatization
 
+# Avec synonyme seulement 
+python jaccard_similarity.py --interactive --use-synonyms
+
+# Avec remove-stopwords seulement 
+python jaccard_similarity.py --interactive --remove-stopwords
+
+# Avec semantic seulement 
+python jaccard_similarity.py --interactive --use-semantic
+
 # Avec lemmatisation + synonymes
 python jaccard_similarity.py --interactive --use-lemmatization --use-synonyms
 
